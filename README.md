@@ -12,14 +12,15 @@ A simple Python tool that converts XML files to Excel format with smart auto-det
 - Formatted Excel output with headers and alternating row colors
 - Timestamped output files (no overwrites)
 
-## Setup
+## Setup & Usage
 
-### First-Time Setup
+### Mac
 
+**First-Time Setup:**
 1. Open Terminal
 2. Navigate to the xlcut folder:
    ```bash
-   cd /Users/samiehabdeljabbar/Desktop/xlcut
+   cd ~/Desktop/xlcut
    ```
 3. Create and activate the virtual environment (one-time):
    ```bash
@@ -28,35 +29,50 @@ A simple Python tool that converts XML files to Excel format with smart auto-det
    pip install -r requirements.txt
    ```
 
-## Usage
+**Running the Script:**
+1. Put your XML files in the `source` folder
+2. Open Terminal and run:
+   ```bash
+   cd ~/Desktop/xlcut
+   source venv/bin/activate
+   python xlcut.py
+   ```
+3. Find your Excel file in the `output` folder
 
-### Step 1: Add Your XML Files
+### Windows
 
-Put your XML files in the `source` folder:
-```
-xlcut/
-└── source/
-    ├── file1.xml
-    ├── file2.xml
-    └── file3.xml
-```
+**First-Time Setup:**
+1. Open Command Prompt or PowerShell
+2. Navigate to the xlcut folder:
+   ```cmd
+   cd %USERPROFILE%\Desktop\xlcut
+   ```
+   Or in PowerShell:
+   ```powershell
+   cd $env:USERPROFILE\Desktop\xlcut
+   ```
+3. Create and activate the virtual environment (one-time):
+   ```cmd
+   python -m venv venv
+   venv\Scripts\activate
+   pip install -r requirements.txt
+   ```
 
-### Step 2: Run the Script
+**Running the Script:**
+1. Put your XML files in the `source` folder
+2. Open Command Prompt or PowerShell and run:
+   ```cmd
+   cd %USERPROFILE%\Desktop\xlcut
+   venv\Scripts\activate
+   python xlcut.py
+   ```
+3. Find your Excel file in the `output` folder
 
-```bash
-cd /Users/samiehabdeljabbar/Desktop/xlcut
-source venv/bin/activate
-python xlcut.py
-```
+### Output
 
-### Step 3: Get Your Excel File
-
-Find your converted Excel file in the `output` folder:
-```
-xlcut/
-└── output/
-    └── export_20260203_200230.xlsx
-```
+The script creates an Excel file with:
+- **"Items Sold" sheet** - Each item sold as a row with Date, Register, Cashier, Description, Quantity, Unit Price, Total, Department, UPC
+- **Additional sheets** - Grouped by transaction type (journal, sale, etc.)
 
 ## Example
 
