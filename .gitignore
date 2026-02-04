@@ -1,0 +1,25 @@
+# Virtual environment
+venv/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Source and output folders (user data)
+source/*.xml
+output/*.xlsx
+
+# Keep the folders but ignore contents
+!source/.gitkeep
+!output/.gitkeep
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
