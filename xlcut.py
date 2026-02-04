@@ -117,15 +117,11 @@ def extract_columns(rows: list[dict]) -> list[str]:
     return columns
 
 
-def write_excel(all_rows: list[dict], columns: list[str], output_path: Path, source_files: list[str] = None):
-    """Write rows to Excel with formatting."""
-    wb = Workbook()
-    ws = wb.active
-    ws.title = "Data"
-
+def write_sheet(ws, rows: list[dict], columns: list[str], include_source: bool = False):
+    """Write rows to a worksheet with formatting."""
     # Add source file column if multiple files
-    if source_files and len(set(source_files)) > 1:
-        columns = ["_source_file"] + columns
+    if include_source:
+        columns = ["_source_file"] + [c for c in columns if c != "_source_file"]
 
     # Header styling
     header_font = Font(bold=True, color="FFFFFF")
@@ -147,7 +143,7 @@ def write_excel(all_rows: list[dict], columns: list[str], output_path: Path, sou
         cell.alignment = Alignment(horizontal="center")
 
     # Write data
-    for row_idx, row_data in enumerate(all_rows, start=2):
+    for row_idx, row_data in enumerate(rows, start=2):
         for col_idx, col_name in enumerate(columns, start=1):
             cell = ws.cell(row=row_idx, column=col_idx)
             value = row_data.get(col_name, "")
@@ -170,15 +166,66 @@ def write_excel(all_rows: list[dict], columns: list[str], output_path: Path, sou
             if row_idx % 2 == 0:
                 cell.fill = PatternFill(start_color="E9EDF4", end_color="E9EDF4", fill_type="solid")
 
-    # Auto-fit columns
+    # Auto-fit columns (sample first 100 rows for performance)
     for col_idx, col_name in enumerate(columns, start=1):
         max_width = len(str(col_name))
-        for row in all_rows:
+        for row in rows[:100]:
             value = row.get(col_name, "")
             max_width = max(max_width, len(str(value)))
         ws.column_dimensions[get_column_letter(col_idx)].width = min(max_width + 2, 50)
 
+
+def write_excel(all_rows: list[dict], columns: list[str], output_path: Path, source_files: list[str] = None):
+    """Write rows to Excel with formatting, grouping by @type into separate sheets."""
+    wb = Workbook()
+
+    # Check if we have multiple source files
+    include_source = source_files and len(set(source_files)) > 1
+
+    # Group rows by @type attribute
+    rows_by_type = {}
+    for row in all_rows:
+        row_type = row.get("@type", "data")
+        if row_type not in rows_by_type:
+            rows_by_type[row_type] = []
+        rows_by_type[row_type].append(row)
+
+    # If only one type, use the old behavior (single sheet)
+    if len(rows_by_type) == 1:
+        ws = wb.active
+        ws.title = "Data"
+        write_sheet(ws, all_rows, columns, include_source)
+        wb.save(output_path)
+        return {"Data": len(all_rows)}
+
+    # Multiple types - create a sheet for each
+    sheet_stats = {}
+    first_sheet = True
+
+    # Sort types for consistent ordering
+    for row_type in sorted(rows_by_type.keys()):
+        type_rows = rows_by_type[row_type]
+
+        # Create sheet name (Excel limits to 31 chars, no special chars)
+        sheet_name = str(row_type).replace("/", "-").replace("\\", "-")[:31]
+
+        if first_sheet:
+            ws = wb.active
+            ws.title = sheet_name
+            first_sheet = False
+        else:
+            ws = wb.create_sheet(title=sheet_name)
+
+        # Get columns that are actually used by this type (preserving order)
+        type_columns = extract_columns(type_rows)
+        # Remove @type from columns since it's redundant (it's the sheet name)
+        type_columns = [c for c in type_columns if c != "@type"]
+
+        write_sheet(ws, type_rows, type_columns, include_source)
+        sheet_stats[sheet_name] = len(type_rows)
+
     wb.save(output_path)
+    return sheet_stats
 
 
 def main():
@@ -244,11 +291,18 @@ def main():
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     output_path = OUTPUT_DIR / f"export_{timestamp}.xlsx"
 
-    write_excel(all_rows, column_order, output_path, source_files)
+    sheet_stats = write_excel(all_rows, column_order, output_path, source_files)
 
     print("-" * 50)
     print(f"\nExported {len(all_rows)} total rows")
-    print(f"Output: {output_path}")
+
+    # Show per-sheet breakdown if multiple sheets
+    if sheet_stats and len(sheet_stats) > 1:
+        print(f"\nWorksheets created ({len(sheet_stats)} sheets):")
+        for sheet_name, count in sorted(sheet_stats.items(), key=lambda x: -x[1]):
+            print(f"  {sheet_name}: {count} rows")
+
+    print(f"\nOutput: {output_path}")
     print("\nDone!")
 
 
