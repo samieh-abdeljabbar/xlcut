@@ -17,6 +17,7 @@ A simple Python tool that converts XML files to Excel format with smart auto-det
 ### Mac
 
 **First-Time Setup:**
+
 1. Open Terminal
 2. Navigate to the xlcut folder:
    ```bash
@@ -30,6 +31,7 @@ A simple Python tool that converts XML files to Excel format with smart auto-det
    ```
 
 **Running the Script:**
+
 1. Put your XML files in the `source` folder
 2. Open Terminal and run:
    ```bash
@@ -42,6 +44,7 @@ A simple Python tool that converts XML files to Excel format with smart auto-det
 ### Windows
 
 **First-Time Setup:**
+
 1. Open Command Prompt or PowerShell
 2. Navigate to the xlcut folder:
    ```cmd
@@ -59,6 +62,7 @@ A simple Python tool that converts XML files to Excel format with smart auto-det
    ```
 
 **Running the Script:**
+
 1. Put your XML files in the `source` folder
 2. Open Command Prompt or PowerShell and run:
    ```cmd
@@ -143,5 +147,7 @@ xlcut/
 - Check that your XML is valid
 
 **Module not found errors**
-- Make sure you activated the virtual environment: `source venv/bin/activate`
+- Make sure you activated the virtual environment:
+  - Mac: `source venv/bin/activate`
+  - Windows: `venv\Scripts\activate`
 - Reinstall dependencies: `pip install -r requirements.txt`
